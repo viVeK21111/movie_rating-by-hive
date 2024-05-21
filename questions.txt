@@ -1,0 +1,7 @@
+questions:
+1) find the active user( who rated more number of movies)
+2) find the movie which has more number of ratings
+3) find the users who are more interestd in horror genre( user who rated the movie
+   which is of horror genere and had given more than 4 rating )
+4) find the movies which is of horror genre
+5) find the average rating of the movie 'Total Eclipse (1995)' given by all the users

@@ -1,0 +1,74 @@
+#->create two tables in hive, one is partitioned 'ratep'and other one is 
+   unpartitioned table 'rate'
+
+   >create table rate (userid int,movieid int,rating int,timestamp bigint)
+   >row format delimited fields terminated by ','
+   >stored as textfile;
+  
+   >create table ratep (movieid int,rating int,timestamp bigint,userid int)
+   >partitioned by (userid int)
+   >row format delimited fields terminated by ','
+   >stored as textfile;
+
+#->load the data rate_s.csv into the unpartitioned table 'rate'
+   hive>load data local inpath '/data/rating_s.csv' into table rate; 
+
+#And later insert the data from unpartitioned table to partitioned table 'ratep' 
+ to create partitions based on userid
+ 
+ hive>INSERT OVERWRITE TABLE ratep PARTITION (userid)
+     >SELECT movieid, rating, timestamp, userid
+     >FROM rate;
+
+
+#->now create another table 'movie' and load the data from local 'movie_s.csv' to 
+   hive table 
+   >load data local  inpath 'path/movie_s.csv' into table movie;
+
+(*NOTE: To prevent the problem of splitting values in the title column that contain commas,
+  Use the org.apache.hadoop.hive.serde2.OpenCSVSerde which can handle quoted fields in CSV files.
+
+CREATE TABLE movies (
+    userid INT,
+    title STRING,
+    genre STRING
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+    "separatorChar" = ",",
+    "quoteChar"     = "\""
+)
+STORED AS TEXTFILE;
+
+#-> Now you can join table movie with the partitioned table ratep based upon common column and
+    perform queries
+
+
+
+### check questions on 'questions.txt' file in the branch, and the queries are below:
+
+#q1) select userid,count(rating) as cnt from ratep group by userid order by cnt desc;
+
+#q2)select movieid,count(rating) as cnt from ratep group by movieid order by cnt desc;
+                 
+ # to get movie name , join moive table with ratep table.
+  >select m.title,count(u.rating) as cnt from ratep u join movie m on u.movieid=m.movieid
+  >group by m.title order by cnt desc limit 5;
+
+#q3)>select u.userid,u.rating,m.title from ratep u join movie m on u.movieid=m.movieid
+    >where u.rating>5 and m.genre like '%Horror%'
+
+#q4)>select title from movie where genre like '%Horror%'
+
+#q5)>select m.title,avg(u.rating) as avgg from ratep u join movie m on u.movieid=m.movieid
+    >where m.title='Jumamji (1995)' group by m.title;
+
+
+
+
+#you can also create a new table and store the joined table into that.Then perform queries
+
+>create table jtable as 
+>select u.userid,u.movieid,u.rating,u.timestamp,m.title,m.genre 
+>from ratep u join movie m on u.movieid=m.movieid
+
