@@ -1,9 +1,13 @@
 # movie_rating-by-hive
-Using hive to analyze and find insights from the data. Hive is used in hdfs where the data is split into different nodes in a cluster and processed parallelly. 
+Using hive to analyze and find insights from the data. Hive is used in hdfs where the data is split into different nodes in a cluster and processed parallelly.Hive is similar to 
+sql like queries which are executed by map-reduce jobs and advanced techniques like partitioning and bucketing are available for optimizing querying.
+
+
+->step by step process implemented in this project where the data of movie rating which contains the users's rating for many movies.
 
 creating three tables in hive, 'ratep' which is partitioned by userid and 'rate' which is 
 unpartitioned. Loaded the data of raing_s.csv into the table 'rate' and later inserted into 
-the partitioned table 'ratep' using dynamic partitioning
+the partitioned table 'ratep' using dynamic partitioning. And we may join two tables to get more information.
 
 To enable dynamic partitionig 
 SET hive.exec.dynamic.partition = true;
